@@ -38,13 +38,16 @@
 
 ##  Overview
 
-<code>❯ uses RNN model to detect sign lanuage through an android smartwatch</code>
+<code>❯ uses RNN model to detect sign lanuage through an android smartwatch(tested with samsung galaxy watch 7) </code>
 
 ---
 
 ##  Features
 
-<code>❯ REPLACE-ME</code>
+<code>❯ realtime detection </code>
+<code>❯ dataset creation </code>
+<code>❯ doublepoint touch-sdk integration to take sensor data from watch over bluetooth </code>
+
 
 ---
 
@@ -101,8 +104,8 @@
 
 Before getting started with Sign-language-recognition, ensure your runtime environment meets the following requirements:
 
-- **Programming Language:** Python'
-- **Libraries** tensorflow, numpy,'
+- **Programming Language:** Python
+- **Libraries** tensorflow, numpy,pandas, scikit-learn, scipy, keras
 
 
 ###  Installation
@@ -113,36 +116,30 @@ Install Sign-language-recognition using one of the following methods:
 
 1. Clone the Sign-language-recognition repository:
 ```sh
-❯ git clone https://github.com/ankitpathak2004/Sign-language-recognition
+git clone https://github.com/ankitpathak2004/Sign-language-recognition
 ```
 
 2. Navigate to the project directory:
 ```sh
-❯ cd Sign-language-recognition
+cd Sign-language-recognition
 ```
 
 3. Install the project dependencies:
 
-echo 'INSERT-INSTALL-COMMAND-HERE'
-
+```sh
+pip install tensorflow numpy pandas scikit-learn scipy 
+```
 
 
 ###  Usage
-Run Sign-language-recognition using the following command:
-echo 'INSERT-RUN-COMMAND-HERE'
+sensor.csv already contains data for 2 sign lanugage gestures- hello and thank you
+run data_creator.py to create dataset after connecting with android watch
+use compile_model.py to create your own model
+use static_test.py to test model with static dataset 
+use realtime_test.py to test model with realtime data(requires smartwatch connection)
 
-###  Testing
-Run the test suite using the following command:
-echo 'INSERT-TEST-COMMAND-HERE'
 
----
-##  Project Roadmap
 
-- [X] **`Task 1`**: <strike>Implement feature one.</strike>
-- [ ] **`Task 2`**: Implement feature two.
-- [ ] **`Task 3`**: Implement feature three.
-
----
 
 ##  Contributing
 
