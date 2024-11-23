@@ -38,7 +38,7 @@
 
 ##  Overview
 
-<code>❯ REPLACE-ME</code>
+<code>❯ uses RNN model to detect sign lanuage through an android smartwatch</code>
 
 ---
 
@@ -101,7 +101,8 @@
 
 Before getting started with Sign-language-recognition, ensure your runtime environment meets the following requirements:
 
-- **Programming Language:** Python
+- **Programming Language:** Python'
+- **Libraries** tensorflow, numpy,'
 
 
 ###  Installation
@@ -186,14 +187,5 @@ echo 'INSERT-TEST-COMMAND-HERE'
 
 ---
 
-##  License
 
-This project is protected under the [SELECT-A-LICENSE](https://choosealicense.com/licenses) License. For more details, refer to the [LICENSE](https://choosealicense.com/licenses/) file.
 
----
-
-##  Acknowledgments
-
-- List any resources, contributors, inspiration, etc. here.
-
----
