@@ -3,7 +3,7 @@
 </p>
 <p align="center"><h1 align="center">SIGN-LANGUAGE-RECOGNITION</h1></p>
 <p align="center">
-	<em><code>❯ REPLACE-ME</code></em>
+	<em><code>❯ uses android smartwatch to detect hand motion using built in accelerometer and gyro and perform sign language detection </code></em>
 </p>
 <p align="center">
 	<img src="https://img.shields.io/github/license/ankitpathak2004/Sign-language-recognition?style=default&logo=opensourceinitiative&logoColor=white&color=0080ff" alt="license">
@@ -78,19 +78,19 @@
 			<table>
 			<tr>
 				<td><b><a href='https://github.com/ankitpathak2004/Sign-language-recognition/blob/master/compile_model.py'>compile_model.py</a></b></td>
-				<td><code>❯ REPLACE-ME</code></td>
+				<td><code>❯ train the model </code></td>
 			</tr>
 			<tr>
 				<td><b><a href='https://github.com/ankitpathak2004/Sign-language-recognition/blob/master/dataset_creator.py'>dataset_creator.py</a></b></td>
-				<td><code>❯ REPLACE-ME</code></td>
+				<td><code>❯ create dataset </code></td>
 			</tr>
 			<tr>
 				<td><b><a href='https://github.com/ankitpathak2004/Sign-language-recognition/blob/master/realtime_test.py'>realtime_test.py</a></b></td>
-				<td><code>❯ REPLACE-ME</code></td>
+				<td><code>❯ test model on realtime data </code></td>
 			</tr>
 			<tr>
 				<td><b><a href='https://github.com/ankitpathak2004/Sign-language-recognition/blob/master/static_test.py'>static_test.py</a></b></td>
-				<td><code>❯ REPLACE-ME</code></td>
+				<td><code>❯ test model on static data </code></td>
 			</tr>
 			</table>
 		</blockquote>
@@ -105,7 +105,8 @@
 Before getting started with Sign-language-recognition, ensure your runtime environment meets the following requirements:
 
 - **Programming Language:** Python
-- **Libraries** tensorflow, numpy,pandas, scikit-learn, scipy, keras
+- **SDK:**Double point touch-sdk
+- **Libraries:** tensorflow, numpy,pandas, scikit-learn, scipy, keras
 
 
 ###  Installation
