@@ -1,6 +1,7 @@
+import keras
 import pandas as pd
 import numpy as np
-import keras
+
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense, Dropout
@@ -11,7 +12,7 @@ data = pd.read_csv('AI_model/sensor.csv')  # Replace with your actual file path
 
 # Step 1: Segment data into sequences
 # Assuming each segment lasts 3 seconds with a specific number of samples per segment
-sequence_length = 130  # Adjust based on your data
+sequence_length = 120  # Adjust based on your data
 segments = []
 
 # Group data by ID (segment) and create sequences
@@ -51,9 +52,9 @@ model.add(Dense(len(unique_labels), activation='softmax'))  # Adjust the number 
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 # Step 7: Train the model
-model.fit(X_train, y_train, epochs=50, batch_size=32, validation_data=(X_test, y_test))
+model.fit(X_train, y_train, epochs=20, batch_size=32, validation_data=(X_test, y_test))
 
 # Step 8: Evaluate the model
 loss, accuracy = model.evaluate(X_test, y_test)
 print(f'Test Loss: {loss:.4f}, Test Accuracy: {accuracy:.4f}')
-keras.saving.save_model(model, 'model.h5')
+keras.saving.save_model(model, 'AI_model/model.h5')

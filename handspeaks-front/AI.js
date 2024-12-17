@@ -30,7 +30,131 @@ const timeTakenElement = document.createElement('div');
 timeTakenElement.id = 'timeTaken';
 document.body.appendChild(timeTakenElement);
 
-// Handle sensor data updates
+// Style the UI with the requested changes
+document.body.style.margin = "0";
+document.body.style.height = "100vh";
+document.body.style.background = "#000000"; // Set background to black
+document.body.style.color = "#ffffff";
+document.body.style.fontFamily = "Arial, sans-serif";
+document.body.style.display = "grid";
+document.body.style.gridTemplateColumns = "1fr 1fr"; // Two columns: one for renderer and one for connect & prediction
+document.body.style.gridTemplateRows = "1fr 1fr"; // First row adjusts height, second row is for time
+document.body.style.gridTemplateAreas = `
+    "renderer connect"
+    "time prediction"
+`; // Define the grid layout
+
+document.body.style.gap = "20px"; // Add some gap between containers
+document.body.style.padding = "10px"; // Padding for overall space
+
+
+// Style for the connect button
+connectButton.style.padding = "15px 30px";
+connectButton.style.borderRadius = "30px";
+connectButton.style.height="256px";
+connectButton.style.border = "none";
+connectButton.style.cursor = "pointer";
+connectButton.style.color = "#ffffff";
+connectButton.style.fontSize = "18px";
+connectButton.style.background = "linear-gradient(135deg, #0f0, #0a0)";
+connectButton.style.transition = "background 0.3s ease, transform 0.3s ease";
+connectButton.onmouseover = () => {
+    connectButton.style.background = "linear-gradient(135deg, #0a0, #050)";
+    connectButton.style.transform = "scale(1.05)";
+};
+connectButton.onmouseout = () => {
+    connectButton.style.background = "linear-gradient(135deg, #0f0, #0a0)";
+    connectButton.style.transform = "scale(1)";
+};
+
+// Style for the prediction element
+predictionElement.style.padding = "20px";
+predictionElement.style.textAlign = "center";
+predictionElement.style.borderRadius = "10px";
+predictionElement.style.background = "grey";
+predictionElement.style.boxShadow = "0 0 10px rgba(0, 255, 255, 0.5)";
+predictionElement.style.fontSize = "24px";
+predictionElement.style.fontWeight = "bold";
+predictionElement.innerHTML = "Prediction will appear here";
+predictionElement.style.gridArea = "prediction"; // Grid area for prediction
+
+// Style for the time taken element
+timeTakenElement.style.padding = "20px";
+timeTakenElement.style.textAlign = "center";
+timeTakenElement.style.borderRadius = "10px";
+timeTakenElement.style.background = "linear-gradient(135deg, #0f2027, #203a43)";
+timeTakenElement.style.boxShadow = "0 0 10px rgba(255, 255, 0, 0.5)";
+timeTakenElement.style.fontSize = "18px";
+timeTakenElement.style.fontWeight = "normal";
+timeTakenElement.innerHTML = "Gesture time will appear here";
+timeTakenElement.style.gridArea = "time"; // Grid area for time taken
+
+// Create the 3D canvas container (Renderer)
+const threeCanvasContainer = document.createElement('div');
+threeCanvasContainer.style.maxWidth = "720px";
+threeCanvasContainer.style.height = "480px";
+threeCanvasContainer.style.margin = "0 auto";
+threeCanvasContainer.style.padding = "15px";
+threeCanvasContainer.style.background = "black";
+threeCanvasContainer.style.borderRadius = "40px";
+threeCanvasContainer.style.boxShadow = "0 0px 12px rgba(128, 128, 128, 0.8)";
+threeCanvasContainer.style.display = "flex";
+threeCanvasContainer.style.justifyContent = "center";
+threeCanvasContainer.style.alignItems = "center";
+threeCanvasContainer.style.gridArea = "renderer"; // Grid area for renderer (on the left)
+document.body.appendChild(threeCanvasContainer);
+
+// Initialize Three.js scene
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.position.set(0, 30, 50);  // Position the camera
+camera.lookAt(new THREE.Vector3(0, 0, 0));  // Focus on the origin
+scene.add(camera);
+
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(720, 480);
+threeCanvasContainer.appendChild(renderer.domElement);
+
+// Add lights to the scene
+const ambientLight = new THREE.AmbientLight(0x404040, 2); // Soft light
+scene.add(ambientLight);
+
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+directionalLight.position.set(5, 5, 5).normalize();
+scene.add(directionalLight);
+
+// Load the hand model
+let handModel = null;
+const loader = new GLTFLoader();
+loader.load('../3dmodel/arm.glb', (gltf) => {
+    handModel = gltf.scene;
+
+    // Reduce the hand model's size
+    handModel.scale.set(1, 1, 1); // Adjust scale (reduce by 50%)
+    scene.add(handModel);
+    animate(); // Start rendering
+});
+
+// Update the 3D hand model's rotation
+function updateHandModel() {
+    if (handModel && isSensorDataValid()) {
+        const [qx, qy, qz, qw] = sensorData.orientation;
+        const quaternion = new THREE.Quaternion(qy, -qz, qx, -qw);
+        const euler = new THREE.Euler().setFromQuaternion(quaternion, 'XYZ');
+        handModel.rotation.x = euler.x;
+        handModel.rotation.y = euler.y;
+        handModel.rotation.z = euler.z;
+    }
+}
+
+// Animation loop
+function animate() {
+    requestAnimationFrame(animate);
+    updateHandModel();
+    renderer.render(scene, camera);
+}
+
+// Event Listeners for sensor data updates
 watch.addEventListener('accelerationchanged', (event) => {
     const { x, y, z } = event.detail;
     sensorData.acceleration = [x, y, z];
@@ -62,84 +186,7 @@ function isSensorDataValid() {
     return allData.every(value => value !== 0);
 }
 
-// Initialize Three.js scene
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-
-// Position the camera along the negative Z-axis to face the model
-camera.position.set(0, 30, -50);  // Z is negative to place the camera opposite to the model
-
-// The camera will look at the origin (where your hand model is placed)
-camera.lookAt(new THREE.Vector3(0, 0, 0));
-
-// Add the camera to the scene
-scene.add(camera);
-
-const renderer = new THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
-
-// Add Ambient Light for general illumination
-const ambientLight = new THREE.AmbientLight(0x404040, 2); // Soft light with intensity 2
-scene.add(ambientLight);
-
-// Add Directional Light for strong lighting and shadows
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // White light with intensity 1
-directionalLight.position.set(5, 5, 5).normalize(); // Position the light in the scene
-scene.add(directionalLight);
-
-// Load the textures for the skybox (you will need 6 images for each face of the cube)
-const skyboxLoader = new THREE.CubeTextureLoader();
-const texture = skyboxLoader.load([
-    'textures/skybox/px.jpg', // +X face
-    'textures/skybox/nx.jpg', // -X face
-    'textures/skybox/py.jpg', // +Y face
-    'textures/skybox/ny.jpg', // -Y face
-    'textures/skybox/pz.jpg', // +Z face
-    'textures/skybox/nz.jpg'  // -Z face
-]);
-
-// Set the scene background to the loaded texture
-scene.background = texture;
-
-let handModel = null;
-
-// Load the 3D hand model
-const loader = new GLTFLoader();
-loader.load('../3dmodel/arm.glb', (gltf) => {
-    handModel = gltf.scene;
-
-    // Invert the model's rotation to fix the upside down issue
-    scene.add(handModel);
-    animate(); // Start the animation loop after loading the model
-});
-
-// Function to update the 3D hand model's rotation based on sensor orientation
-function updateHandModel() {
-    if (handModel && isSensorDataValid()) {
-        const [qx, qy, qz, qw] = sensorData.orientation; // Get quaternion values
-        
-        // Convert sensor quaternion to Three.js quaternion
-        const quaternion = new THREE.Quaternion(qy, -qz, qx, -qw); // (x, z = rotation in place, y = side)
-
-        // Convert quaternion to Euler angles
-        const euler = new THREE.Euler().setFromQuaternion(quaternion, 'XYZ'); // Adjust rotation order if needed
-
-        // Apply the calculated rotation to the hand model
-        handModel.rotation.x = euler.x;
-        handModel.rotation.y = euler.y;
-        handModel.rotation.z = euler.z;
-    }
-}
-
-// Render loop
-function animate() {
-    requestAnimationFrame(animate);
-    updateHandModel(); // Update hand model's orientation
-    renderer.render(scene, camera);
-}
-
-// Function to accumulate sensor data
+// Accumulate sensor data
 function accumulateSensorData() {
     if (!isCollectingData || !isSensorDataValid()) return;
 
@@ -151,61 +198,37 @@ function accumulateSensorData() {
         ...sensorData.acceleration,
         ...sensorData.gravity,
         ...sensorData.angularVelocity,
-        ...sensorData.orientation.slice(0, 3) // Only take x, y, z from orientation
+        ...sensorData.orientation.slice(0, 3) // x, y, z
     ];
 
     sensorDataBuffer.push(structuredData);
 
     if (sensorDataBuffer.length >= sequenceLength) {
-        // Stop collecting data temporarily
         isCollectingData = false;
+        const timeTaken = (Date.now() - startTime) / 1000;
+        timeTakenElement.innerHTML = `Time: ${timeTaken.toFixed(2)}s`;
 
-        // Log the accumulated sensor data
-        console.log("Accumulated Sensor Data: ", sensorDataBuffer);
-
-        // Record the time taken
-        const endTime = Date.now();
-        const timeTaken = (endTime - startTime) / 1000;
-        timeTakenElement.innerHTML = `Time taken to collect 130 samples: ${timeTaken.toFixed(2)} seconds`;
-
-        // Send data to Flask API
-        const dataToSend = sensorDataBuffer.slice(0, sequenceLength);
+        sendDataToFlask(sensorDataBuffer.slice(0, sequenceLength));
         sensorDataBuffer = [];
-
-        sendDataToFlask(dataToSend);
-
-        // Delay before clearing the buffer and restarting data collection
-        setTimeout(() => {
-            isCollectingData = true; // Resume data collection after 1 second
-        }, 1000); // 1-second delay
+        setTimeout(() => { isCollectingData = true; }, 1000);
     }
 }
 
-// Function to send accumulated data to Flask API
+// Send data to Flask API
 async function sendDataToFlask(dataToSend) {
-    const flattenedData = dataToSend.flat();
-
     try {
         const response = await fetch('http://127.0.0.1:5000/predict', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                sensor_data: flattenedData
-            })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sensor_data: dataToSend.flat() })
         });
 
         const data = await response.json();
-        if (data.prediction) {
-            predictionElement.innerHTML = `Predicted Gesture: ${data.prediction}`;
-        } else {
-            predictionElement.innerHTML = `Error: ${data.error}`;
-        }
+        predictionElement.innerHTML = data.prediction ? `Prediction: ${data.prediction}` : `Error: ${data.error}`;
     } catch (error) {
-        predictionElement.innerHTML = `Error sending data to Flask: ${error.message}`;
+        predictionElement.innerHTML = `Error: ${error.message}`;
     }
 }
 
-// Start accumulating sensor data at 50 Hz
-setInterval(accumulateSensorData, 20); // Collect data every 20ms (50Hz)
+// Start accumulating data
+setInterval(accumulateSensorData, 20);
