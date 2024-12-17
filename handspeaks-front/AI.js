@@ -1,11 +1,15 @@
+import * as THREE from 'three';
+import { GLTFLoader } from 'GLTFLoader';
+
 const watch = new TouchSDK.Watch();
 
+// Create a connect button for the smartwatch
 const connectButton = watch.createConnectButton();
 document.body.appendChild(connectButton);
 
 const sequenceLength = 130; // Number of samples needed for prediction
 let sensorDataBuffer = []; // Buffer to accumulate sensor data
-let isCollectingData = false; // Flag to control data collection
+let isCollectingData = true; // Flag to control data collection
 
 // Object to store sensor data
 const sensorData = {
@@ -15,10 +19,9 @@ const sensorData = {
     orientation: [0, 0, 0, 0],
 };
 
-// Variable to store the timestamp when the first sample is collected
 let startTime = null;
 
-// Create an element to display the prediction result and time taken
+// Create elements to display prediction result and time taken
 const predictionElement = document.createElement('div');
 predictionElement.id = 'prediction';
 document.body.appendChild(predictionElement);
@@ -27,111 +30,159 @@ const timeTakenElement = document.createElement('div');
 timeTakenElement.id = 'timeTaken';
 document.body.appendChild(timeTakenElement);
 
-// Handle acceleration data
+// Handle sensor data updates
 watch.addEventListener('accelerationchanged', (event) => {
-    if (isCollectingData) {
-        const { x, y, z } = event.detail;
-        sensorData.acceleration = [x, y, z];
-    }
+    const { x, y, z } = event.detail;
+    sensorData.acceleration = [x, y, z];
 });
 
-// Handle angular velocity data
 watch.addEventListener('angularvelocitychanged', (event) => {
-    if (isCollectingData) {
-        const { x, y, z } = event.detail;
-        sensorData.angularVelocity = [x, y, z];
-    }
+    const { x, y, z } = event.detail;
+    sensorData.angularVelocity = [x, y, z];
 });
 
-// Handle gravity vector data
 watch.addEventListener('gravityvectorchanged', (event) => {
-    if (isCollectingData) {
-        const { x, y, z } = event.detail;
-        sensorData.gravity = [x, y, z];
-    }
+    const { x, y, z } = event.detail;
+    sensorData.gravity = [x, y, z];
 });
 
-// Handle orientation data
 watch.addEventListener('orientationchanged', (event) => {
-    if (isCollectingData) {
-        const { x, y, z, w } = event.detail;
-        sensorData.orientation = [x, y, z, w];
-    }
+    const { x, y, z, w } = event.detail;
+    sensorData.orientation = [x, y, z, w];
 });
+
+// Function to check if all sensor data values are non-zero
+function isSensorDataValid() {
+    const allData = [
+        ...sensorData.acceleration,
+        ...sensorData.gravity,
+        ...sensorData.angularVelocity,
+        ...sensorData.orientation
+    ];
+    return allData.every(value => value !== 0);
+}
+
+// Initialize Three.js scene
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+// Position the camera along the negative Z-axis to face the model
+camera.position.set(0, 30, -50);  // Z is negative to place the camera opposite to the model
+
+// The camera will look at the origin (where your hand model is placed)
+camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+// Add the camera to the scene
+scene.add(camera);
+
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+// Add Ambient Light for general illumination
+const ambientLight = new THREE.AmbientLight(0x404040, 2); // Soft light with intensity 2
+scene.add(ambientLight);
+
+// Add Directional Light for strong lighting and shadows
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // White light with intensity 1
+directionalLight.position.set(5, 5, 5).normalize(); // Position the light in the scene
+scene.add(directionalLight);
+
+// Load the textures for the skybox (you will need 6 images for each face of the cube)
+const skyboxLoader = new THREE.CubeTextureLoader();
+const texture = skyboxLoader.load([
+    'textures/skybox/px.jpg', // +X face
+    'textures/skybox/nx.jpg', // -X face
+    'textures/skybox/py.jpg', // +Y face
+    'textures/skybox/ny.jpg', // -Y face
+    'textures/skybox/pz.jpg', // +Z face
+    'textures/skybox/nz.jpg'  // -Z face
+]);
+
+// Set the scene background to the loaded texture
+scene.background = texture;
+
+let handModel = null;
+
+// Load the 3D hand model
+const loader = new GLTFLoader();
+loader.load('../3dmodel/arm.glb', (gltf) => {
+    handModel = gltf.scene;
+
+    // Invert the model's rotation to fix the upside down issue
+    scene.add(handModel);
+    animate(); // Start the animation loop after loading the model
+});
+
+// Function to update the 3D hand model's rotation based on sensor orientation
+function updateHandModel() {
+    if (handModel && isSensorDataValid()) {
+        const [qx, qy, qz, qw] = sensorData.orientation; // Get quaternion values
+        
+        // Convert sensor quaternion to Three.js quaternion
+        const quaternion = new THREE.Quaternion(qy, -qz, qx, -qw); // (x, z = rotation in place, y = side)
+
+        // Convert quaternion to Euler angles
+        const euler = new THREE.Euler().setFromQuaternion(quaternion, 'XYZ'); // Adjust rotation order if needed
+
+        // Apply the calculated rotation to the hand model
+        handModel.rotation.x = euler.x;
+        handModel.rotation.y = euler.y;
+        handModel.rotation.z = euler.z;
+    }
+}
+
+// Render loop
+function animate() {
+    requestAnimationFrame(animate);
+    updateHandModel(); // Update hand model's orientation
+    renderer.render(scene, camera);
+}
 
 // Function to accumulate sensor data
 function accumulateSensorData() {
-    // Only accumulate data if the flag is set
-    if (!isCollectingData) return;
+    if (!isCollectingData || !isSensorDataValid()) return;
 
-    // Start tracking time when the first sample is added
     if (sensorDataBuffer.length === 0) {
         startTime = Date.now();
     }
 
-    // Combine sensor data into a single array (only x, y, z from orientation)
     const structuredData = [
         ...sensorData.acceleration,
         ...sensorData.gravity,
         ...sensorData.angularVelocity,
-        ...sensorData.orientation.slice(0, 3), // Only take x, y, z from orientation
+        ...sensorData.orientation.slice(0, 3) // Only take x, y, z from orientation
     ];
 
-    // Add new data to the buffer
     sensorDataBuffer.push(structuredData);
 
-    // Log structured data (will stop when isCollectingData is false)
-    console.log(structuredData);
-
-    // Check if the buffer has enough data (130 samples)
     if (sensorDataBuffer.length >= sequenceLength) {
-        // Stop collecting data
+        // Stop collecting data temporarily
         isCollectingData = false;
 
-        // Calculate time taken to collect 130 samples
-        const endTime = Date.now();
-        const timeTaken = (endTime - startTime) / 1000; // Time in seconds
+        // Log the accumulated sensor data
+        console.log("Accumulated Sensor Data: ", sensorDataBuffer);
 
-        // Display the time taken
+        // Record the time taken
+        const endTime = Date.now();
+        const timeTaken = (endTime - startTime) / 1000;
         timeTakenElement.innerHTML = `Time taken to collect 130 samples: ${timeTaken.toFixed(2)} seconds`;
 
-        // Slice the buffer to the first 130 samples
+        // Send data to Flask API
         const dataToSend = sensorDataBuffer.slice(0, sequenceLength);
-
-        // Reset the buffer after sending the data and print a reset message
         sensorDataBuffer = [];
-        console.log('Buffer reset after sending data');
-        displayPrediction('Buffer reset after sending data');
 
-        // Send the data to Flask API
         sendDataToFlask(dataToSend);
 
-        // Wait 1 second (1000 ms) before starting new data accumulation
+        // Delay before clearing the buffer and restarting data collection
         setTimeout(() => {
-            console.log('Starting new data accumulation after 1 second delay');
-            displayPrediction('Starting new data accumulation after 1 second delay');
-
-            // Restart data collection
-            isCollectingData = true;
-        }, 1000); // 1000 ms = 1 second delay
+            isCollectingData = true; // Resume data collection after 1 second
+        }, 1000); // 1-second delay
     }
-}
-
-// Function to start data accumulation with a 50 Hz sampling rate (every 20 ms)
-function startDataAccumulation() {
-    // Clear any existing intervals before starting a new one
-    if (window.dataInterval) {
-        clearInterval(window.dataInterval);
-    }
-
-    // Start accumulating data every 20 ms (50 Hz)
-    isCollectingData = true;
-    window.dataInterval = setInterval(accumulateSensorData, 20);
 }
 
 // Function to send accumulated data to Flask API
 async function sendDataToFlask(dataToSend) {
-    // Flatten the data to match the expected format (130 * 12 = 1560 values)
     const flattenedData = dataToSend.flat();
 
     try {
@@ -147,22 +198,14 @@ async function sendDataToFlask(dataToSend) {
 
         const data = await response.json();
         if (data.prediction) {
-            console.log('Predicted Gesture: ' + data.prediction);
-            displayPrediction(data.prediction); // Display prediction on the HTML page
+            predictionElement.innerHTML = `Predicted Gesture: ${data.prediction}`;
         } else {
-            console.log('Error: ' + data.error);
-            displayPrediction('Error: ' + data.error); // Show error on the page
+            predictionElement.innerHTML = `Error: ${data.error}`;
         }
     } catch (error) {
-        console.error('Error sending data to Flask:', error);
-        displayPrediction('Error sending data to Flask'); // Show error on the page
+        predictionElement.innerHTML = `Error sending data to Flask: ${error.message}`;
     }
 }
 
-// Function to update the prediction element on the HTML page
-function displayPrediction(prediction) {
-    predictionElement.innerHTML = `Predicted Gesture: ${prediction}`;
-}
-
-// Start the initial data accumulation
-startDataAccumulation();
+// Start accumulating sensor data at 50 Hz
+setInterval(accumulateSensorData, 20); // Collect data every 20ms (50Hz)
