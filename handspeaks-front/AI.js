@@ -1,11 +1,15 @@
+import * as THREE from 'three';
+import { GLTFLoader } from 'GLTFLoader';
+
 const watch = new TouchSDK.Watch();
 
+// Create a connect button for the smartwatch
 const connectButton = watch.createConnectButton();
 document.body.appendChild(connectButton);
 
 const sequenceLength = 130; // Number of samples needed for prediction
 let sensorDataBuffer = []; // Buffer to accumulate sensor data
-let isCollectingData = false; // Flag to control data collection
+let isCollectingData = true; // Flag to control data collection
 
 // Object to store sensor data
 const sensorData = {
@@ -15,10 +19,9 @@ const sensorData = {
     orientation: [0, 0, 0, 0],
 };
 
-// Variable to store the timestamp when the first sample is collected
 let startTime = null;
 
-// Create an element to display the prediction result and time taken
+// Create elements to display prediction result and time taken
 const predictionElement = document.createElement('div');
 predictionElement.id = 'prediction';
 document.body.appendChild(predictionElement);
@@ -27,142 +30,205 @@ const timeTakenElement = document.createElement('div');
 timeTakenElement.id = 'timeTaken';
 document.body.appendChild(timeTakenElement);
 
-// Handle acceleration data
+// Style the UI with the requested changes
+document.body.style.margin = "0";
+document.body.style.height = "100vh";
+document.body.style.background = "#000000"; // Set background to black
+document.body.style.color = "#ffffff";
+document.body.style.fontFamily = "Arial, sans-serif";
+document.body.style.display = "grid";
+document.body.style.gridTemplateColumns = "1fr 1fr"; // Two columns: one for renderer and one for connect & prediction
+document.body.style.gridTemplateRows = "1fr 1fr"; // First row adjusts height, second row is for time
+document.body.style.gridTemplateAreas = `
+    "renderer connect"
+    "time prediction"
+`; // Define the grid layout
+
+document.body.style.gap = "20px"; // Add some gap between containers
+document.body.style.padding = "10px"; // Padding for overall space
+
+
+// Style for the connect button
+connectButton.style.padding = "15px 30px";
+connectButton.style.borderRadius = "30px";
+connectButton.style.height="256px";
+connectButton.style.border = "none";
+connectButton.style.cursor = "pointer";
+connectButton.style.color = "#ffffff";
+connectButton.style.fontSize = "18px";
+connectButton.style.background = "linear-gradient(135deg, #0f0, #0a0)";
+connectButton.style.transition = "background 0.3s ease, transform 0.3s ease";
+connectButton.onmouseover = () => {
+    connectButton.style.background = "linear-gradient(135deg, #0a0, #050)";
+    connectButton.style.transform = "scale(1.05)";
+};
+connectButton.onmouseout = () => {
+    connectButton.style.background = "linear-gradient(135deg, #0f0, #0a0)";
+    connectButton.style.transform = "scale(1)";
+};
+
+// Style for the prediction element
+predictionElement.style.padding = "20px";
+predictionElement.style.textAlign = "center";
+predictionElement.style.borderRadius = "10px";
+predictionElement.style.background = "grey";
+predictionElement.style.boxShadow = "0 0 10px rgba(0, 255, 255, 0.5)";
+predictionElement.style.fontSize = "24px";
+predictionElement.style.fontWeight = "bold";
+predictionElement.innerHTML = "Prediction will appear here";
+predictionElement.style.gridArea = "prediction"; // Grid area for prediction
+
+// Style for the time taken element
+timeTakenElement.style.padding = "20px";
+timeTakenElement.style.textAlign = "center";
+timeTakenElement.style.borderRadius = "10px";
+timeTakenElement.style.background = "linear-gradient(135deg, #0f2027, #203a43)";
+timeTakenElement.style.boxShadow = "0 0 10px rgba(255, 255, 0, 0.5)";
+timeTakenElement.style.fontSize = "18px";
+timeTakenElement.style.fontWeight = "normal";
+timeTakenElement.innerHTML = "Gesture time will appear here";
+timeTakenElement.style.gridArea = "time"; // Grid area for time taken
+
+// Create the 3D canvas container (Renderer)
+const threeCanvasContainer = document.createElement('div');
+threeCanvasContainer.style.maxWidth = "720px";
+threeCanvasContainer.style.height = "480px";
+threeCanvasContainer.style.margin = "0 auto";
+threeCanvasContainer.style.padding = "15px";
+threeCanvasContainer.style.background = "black";
+threeCanvasContainer.style.borderRadius = "40px";
+threeCanvasContainer.style.boxShadow = "0 0px 12px rgba(128, 128, 128, 0.8)";
+threeCanvasContainer.style.display = "flex";
+threeCanvasContainer.style.justifyContent = "center";
+threeCanvasContainer.style.alignItems = "center";
+threeCanvasContainer.style.gridArea = "renderer"; // Grid area for renderer (on the left)
+document.body.appendChild(threeCanvasContainer);
+
+// Initialize Three.js scene
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.position.set(0, 30, 50);  // Position the camera
+camera.lookAt(new THREE.Vector3(0, 0, 0));  // Focus on the origin
+scene.add(camera);
+
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(720, 480);
+threeCanvasContainer.appendChild(renderer.domElement);
+
+// Add lights to the scene
+const ambientLight = new THREE.AmbientLight(0x404040, 2); // Soft light
+scene.add(ambientLight);
+
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+directionalLight.position.set(5, 5, 5).normalize();
+scene.add(directionalLight);
+
+// Load the hand model
+let handModel = null;
+const loader = new GLTFLoader();
+loader.load('../3dmodel/arm.glb', (gltf) => {
+    handModel = gltf.scene;
+
+    // Reduce the hand model's size
+    handModel.scale.set(1, 1, 1); // Adjust scale (reduce by 50%)
+    scene.add(handModel);
+    animate(); // Start rendering
+});
+
+// Update the 3D hand model's rotation
+function updateHandModel() {
+    if (handModel && isSensorDataValid()) {
+        const [qx, qy, qz, qw] = sensorData.orientation;
+        const quaternion = new THREE.Quaternion(qy, -qz, qx, -qw);
+        const euler = new THREE.Euler().setFromQuaternion(quaternion, 'XYZ');
+        handModel.rotation.x = euler.x;
+        handModel.rotation.y = euler.y;
+        handModel.rotation.z = euler.z;
+    }
+}
+
+// Animation loop
+function animate() {
+    requestAnimationFrame(animate);
+    updateHandModel();
+    renderer.render(scene, camera);
+}
+
+// Event Listeners for sensor data updates
 watch.addEventListener('accelerationchanged', (event) => {
-    if (isCollectingData) {
-        const { x, y, z } = event.detail;
-        sensorData.acceleration = [x, y, z];
-    }
+    const { x, y, z } = event.detail;
+    sensorData.acceleration = [x, y, z];
 });
 
-// Handle angular velocity data
 watch.addEventListener('angularvelocitychanged', (event) => {
-    if (isCollectingData) {
-        const { x, y, z } = event.detail;
-        sensorData.angularVelocity = [x, y, z];
-    }
+    const { x, y, z } = event.detail;
+    sensorData.angularVelocity = [x, y, z];
 });
 
-// Handle gravity vector data
 watch.addEventListener('gravityvectorchanged', (event) => {
-    if (isCollectingData) {
-        const { x, y, z } = event.detail;
-        sensorData.gravity = [x, y, z];
-    }
+    const { x, y, z } = event.detail;
+    sensorData.gravity = [x, y, z];
 });
 
-// Handle orientation data
 watch.addEventListener('orientationchanged', (event) => {
-    if (isCollectingData) {
-        const { x, y, z, w } = event.detail;
-        sensorData.orientation = [x, y, z, w];
-    }
+    const { x, y, z, w } = event.detail;
+    sensorData.orientation = [x, y, z, w];
 });
 
-// Function to accumulate sensor data
-function accumulateSensorData() {
-    // Only accumulate data if the flag is set
-    if (!isCollectingData) return;
+// Function to check if all sensor data values are non-zero
+function isSensorDataValid() {
+    const allData = [
+        ...sensorData.acceleration,
+        ...sensorData.gravity,
+        ...sensorData.angularVelocity,
+        ...sensorData.orientation
+    ];
+    return allData.every(value => value !== 0);
+}
 
-    // Start tracking time when the first sample is added
+// Accumulate sensor data
+function accumulateSensorData() {
+    if (!isCollectingData || !isSensorDataValid()) return;
+
     if (sensorDataBuffer.length === 0) {
         startTime = Date.now();
     }
 
-    // Combine sensor data into a single array (only x, y, z from orientation)
     const structuredData = [
         ...sensorData.acceleration,
         ...sensorData.gravity,
         ...sensorData.angularVelocity,
-        ...sensorData.orientation.slice(0, 3), // Only take x, y, z from orientation
+        ...sensorData.orientation.slice(0, 3) // x, y, z
     ];
 
-    // Add new data to the buffer
     sensorDataBuffer.push(structuredData);
 
-    // Log structured data (will stop when isCollectingData is false)
-    console.log(structuredData);
-
-    // Check if the buffer has enough data (130 samples)
     if (sensorDataBuffer.length >= sequenceLength) {
-        // Stop collecting data
         isCollectingData = false;
+        const timeTaken = (Date.now() - startTime) / 1000;
+        timeTakenElement.innerHTML = `Time: ${timeTaken.toFixed(2)}s`;
 
-        // Calculate time taken to collect 130 samples
-        const endTime = Date.now();
-        const timeTaken = (endTime - startTime) / 1000; // Time in seconds
-
-        // Display the time taken
-        timeTakenElement.innerHTML = `Time taken to collect 130 samples: ${timeTaken.toFixed(2)} seconds`;
-
-        // Slice the buffer to the first 130 samples
-        const dataToSend = sensorDataBuffer.slice(0, sequenceLength);
-
-        // Reset the buffer after sending the data and print a reset message
+        sendDataToFlask(sensorDataBuffer.slice(0, sequenceLength));
         sensorDataBuffer = [];
-        console.log('Buffer reset after sending data');
-        displayPrediction('Buffer reset after sending data');
-
-        // Send the data to Flask API
-        sendDataToFlask(dataToSend);
-
-        // Wait 1 second (1000 ms) before starting new data accumulation
-        setTimeout(() => {
-            console.log('Starting new data accumulation after 1 second delay');
-            displayPrediction('Starting new data accumulation after 1 second delay');
-
-            // Restart data collection
-            isCollectingData = true;
-        }, 1000); // 1000 ms = 1 second delay
+        setTimeout(() => { isCollectingData = true; }, 1000);
     }
 }
 
-// Function to start data accumulation with a 50 Hz sampling rate (every 20 ms)
-function startDataAccumulation() {
-    // Clear any existing intervals before starting a new one
-    if (window.dataInterval) {
-        clearInterval(window.dataInterval);
-    }
-
-    // Start accumulating data every 20 ms (50 Hz)
-    isCollectingData = true;
-    window.dataInterval = setInterval(accumulateSensorData, 20);
-}
-
-// Function to send accumulated data to Flask API
+// Send data to Flask API
 async function sendDataToFlask(dataToSend) {
-    // Flatten the data to match the expected format (130 * 12 = 1560 values)
-    const flattenedData = dataToSend.flat();
-
     try {
         const response = await fetch('http://127.0.0.1:5000/predict', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                sensor_data: flattenedData
-            })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sensor_data: dataToSend.flat() })
         });
 
         const data = await response.json();
-        if (data.prediction) {
-            console.log('Predicted Gesture: ' + data.prediction);
-            displayPrediction(data.prediction); // Display prediction on the HTML page
-        } else {
-            console.log('Error: ' + data.error);
-            displayPrediction('Error: ' + data.error); // Show error on the page
-        }
+        predictionElement.innerHTML = data.prediction ? `Prediction: ${data.prediction}` : `Error: ${data.error}`;
     } catch (error) {
-        console.error('Error sending data to Flask:', error);
-        displayPrediction('Error sending data to Flask'); // Show error on the page
+        predictionElement.innerHTML = `Error: ${error.message}`;
     }
 }
 
-// Function to update the prediction element on the HTML page
-function displayPrediction(prediction) {
-    predictionElement.innerHTML = `Predicted Gesture: ${prediction}`;
-}
-
-// Start the initial data accumulation
-startDataAccumulation();
+// Start accumulating data
+setInterval(accumulateSensorData, 20);
