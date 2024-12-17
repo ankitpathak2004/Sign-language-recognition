@@ -5,7 +5,7 @@ from tensorflow.keras.models import load_model
 
 # Load the pre-trained model
 model = load_model('AI_model/model.h5')  # Update with your model's path
-unique_labels = ["hello", "thank you"]
+unique_labels = ["hello", "thank you", "no gesture","what","your","name"]
 
 # Constants
 sequence_length = 130  # Length of sequences for prediction (130 samples)
