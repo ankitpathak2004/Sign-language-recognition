@@ -4,6 +4,7 @@ const navigation = document.querySelector('.navigation');
 menuToggle.addEventListener('click', () => {
     navigation.classList.toggle('active');
 });
+//hello
 const navLinks = document.querySelectorAll('.navigation li a');
 
 // Initially set the active state for the current page link
