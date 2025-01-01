@@ -38,3 +38,26 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+
+// Check if dark mode is enabled in localStorage
+const currentMode = localStorage.getItem('mode') || 'light';
+
+// Apply the saved mode to the body
+if (currentMode === 'dark') {
+    document.body.classList.add('dark-mode');
+}
+
+// Toggle Dark Mode when logo is clicked
+document.getElementById('logo').addEventListener('click', function () {
+    document.body.classList.toggle('dark-mode');
+
+    // Save the mode in localStorage
+    if (document.body.classList.contains('dark-mode')) {
+        localStorage.setItem('mode', 'dark');
+    } else {
+        localStorage.setItem('mode', 'light');
+    }
+});
+// Add this in your script.js or a <script> tag
+
+

@@ -13,21 +13,20 @@ body {
     min-height: 100vh;
     overflow-x: hidden;
 }
+
 /* Logo Styling */
 .logo {
     font-size: 2.5em;
     font-weight: bold;
-    color: #333; /* Default color for the rest of the logo */
+    color: #333;
 }
 
-/* Highlighted letters' styles */
 .highlight {
-    color: #f39c12; /* Color for H, A, D, K, and the last S */
+    color: #f39c12;
 }
 
-/* Original letter's styles */
 .original {
-    color: #333; /* Default color for S after D */
+    color: #333;
 }
 
 /* Header Styling */
@@ -37,7 +36,7 @@ header {
     left: 0;
     width: 100%;
     background: rgba(255, 255, 255, 0.9);
-    padding: 15px 30px;
+    padding: 15px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -50,14 +49,13 @@ header {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: #333;
-    text-decoration: none; /* Removes underline */
+    text-decoration: none;
 }
 
 /* Navigation Bar Styling */
 .navigation {
     display: flex;
-    gap: 20px;
+    gap: 15px;
     list-style: none;
 }
 
@@ -72,7 +70,6 @@ header {
     transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out;
 }
 
-/* Hover Effects for Navigation Links */
 .navigation li a::after {
     content: '';
     position: absolute;
@@ -85,16 +82,15 @@ header {
 }
 
 .navigation li a:hover::after {
-    width: 100%; /* Full underline on hover */
+    width: 100%;
 }
 
 .navigation li a:hover {
     color: #007bff;
 }
 
-/* Highlight Current Page */
 .navigation li a.active {
-    background-color: #007bff; /* Highlight color */
+    background-color: #007bff;
     color: white;
     border-radius: 5px;
     transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
@@ -143,6 +139,24 @@ header {
     cursor: pointer;
 }
 
+@media screen and (max-width: 1024px) {
+    header {
+        padding: 10px 20px;
+    }
+
+    .logo {
+        font-size: 1.3em;
+    }
+
+    .navigation li a {
+        font-size: 0.9em;
+    }
+
+    .search-container {
+        display: none;
+    }
+}
+
 @media screen and (max-width: 768px) {
     .navigation {
         display: none;
@@ -154,6 +168,7 @@ header {
         width: 200px;
         box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         padding: 20px;
+        border-radius: 10px;
     }
 
     .navigation.active {
@@ -163,11 +178,171 @@ header {
     .menu-toggle {
         display: block;
     }
+}
 
-    .search-container {
-        display: none;
+@media screen and (max-width: 480px) {
+    header {
+        padding: 10px;
+    }
+
+    .logo {
+        font-size: 1.2em;
+    }
+
+    .navigation li a {
+        font-size: 0.8em;
+        padding: 6px 10px;
     }
 }
+
+
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f9;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    text-align: center;
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 40px;
+}
+
+.flowchart {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 20px;
+    justify-items: center;
+    align-items: center;
+    margin-top: 50px;
+}
+
+.flowchart-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    background-color: #fff;
+    padding: 25px;
+    border: 2px solid #3f51b5;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 250px;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.flowchart-step:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+
+.flowchart-step-icon {
+    font-size: 35px;
+    color: #fff;
+    padding: 20px;
+    border-radius: 50%;
+    background-color: #3f51b5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.flowchart-step-content h3 {
+    margin: 0;
+    color: #3f51b5;
+    font-size: 18px;
+}
+
+.flowchart-step-content p {
+    margin: 5px 0;
+    color: #666;
+    font-size: 14px;
+    line-height: 1.4;
+    text-align: center;
+}
+
+.details-panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    display: none;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.4s ease, transform 0.3s ease;
+    overflow-y: auto;
+}
+
+.flowchart-step:hover .details-panel {
+    display: block;
+    opacity: 1;
+    transform: translateY(20px);
+}
+
+.details-panel-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #3f51b5;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.details-panel-close:hover {
+    background-color: #2c3e50;
+}
+
+.details-panel-content {
+    color: #333;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.details-panel-content h4 {
+    color: #3f51b5;
+    margin-top: 0;
+}
+
+.details-panel-content ul {
+    margin-left: 20px;
+}
+
+.details-panel-content ul li {
+    margin: 5px 0;
+}
+
+@media (max-width: 768px) {
+    .flowchart {
+        grid-template-columns: 1fr;
+        grid-gap: 30px;
+    }
+
+    .flowchart-step {
+        max-width: 300px;
+    }
+}
+
+
+
 /* Tutorial Button Styling */
 .tutorial-button {
     padding: 12px 25px;
@@ -181,7 +356,8 @@ header {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;  /* Adjust gap between text and icon */
+    gap: 10px;
+    /* Adjust gap between text and icon */
     transition: background-color 0.3s ease-in-out;
 }
 
@@ -191,32 +367,37 @@ header {
 
 /* Icon Container Styling */
 .icon-container {
-    font-size: 1.5em;    /* Adjust the icon size */
+    font-size: 1.5em;
+    /* Adjust the icon size */
     display: flex;
     align-items: center;
 }
 
 /* Ionicon Styling */
 ion-icon {
-    vertical-align: middle; /* Aligns icon vertically with text */
+    vertical-align: middle;
+    /* Aligns icon vertically with text */
 }
 
 
 
 /* New Overview Section Styling with Background Image */
 .overview {
-    background-image: url('your-image-path.jpg'); /* Replace with your actual image path */
+    background-image: url('your-image-path.jpg');
+    /* Replace with your actual image path */
     background-size: cover;
     background-position: center;
     color: white;
     padding: 80px 20px;
+    margin-top: 1px;
     text-align: center;
 }
 
 .overview-content {
     max-width: 900px;
     margin: 0 auto;
-    background-color: rgba(0, 0, 0, 0.5); /* Adds a semi-transparent dark overlay for text visibility */
+    background-color: #00000080;
+    /* Adds a semi-transparent dark overlay for text visibility */
     padding: 40px;
     border-radius: 8px;
 }
@@ -280,7 +461,7 @@ ion-icon {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: #00000066;
     overflow: hidden;
 }
 
@@ -322,7 +503,8 @@ ion-icon {
 }
 
 body {
-    padding-top: 60px; /* Adjust depending on your header size */
+    padding-top: 60px;
+    /* Adjust depending on your header size */
 }
 
 /* Team Section Styling */
@@ -333,7 +515,8 @@ body {
     gap: 30px;
     padding: 50px 20px;
     background-color: #fff;
-    margin-top: 100px; /* Ensure it's not hidden behind navigation */
+    margin-top: 100px;
+    /* Ensure it's not hidden behind navigation */
     box-sizing: border-box;
 }
 
@@ -344,7 +527,8 @@ body {
     padding: 20px;
     text-align: center;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 30%; /* Ensure 3 members per row */
+    width: 30%;
+    /* Ensure 3 members per row */
     transition: transform 0.3s ease-in-out;
 }
 
@@ -381,7 +565,8 @@ body {
     }
 
     .team-member {
-        width: 80%; /* Make team members take up more space on smaller screens */
+        width: 80%;
+        /* Make team members take up more space on smaller screens */
         margin-bottom: 20px;
     }
 }
@@ -391,6 +576,7 @@ body {
         opacity: 0;
         transform: translateY(20px);
     }
+
     100% {
         opacity: 1;
         transform: translateY(0);
@@ -443,4 +629,540 @@ footer {
     color: white;
     padding: 20px;
     text-align: center;
+}
+
+/* Overview Section Layout */
+.overview {
+    background-color: #dee1e2;
+    padding: 80px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    /* Full viewport height */
+    border-radius: 15px;
+    max-height: 100%;
+    /* Ensures the section takes the full height */
+}
+
+/* Layout Container */
+.overview-layout {
+    display: flex;
+    align-items: flex-start;
+    max-width: 1400px;
+    /* Increased max-width for a wider layout */
+    width: 90%;
+    /* Takes 90% of the available width */
+    gap: 40px;
+    /* Increased gap between the elements */
+    border-radius: 15px;
+    background-color: white;
+    overflow: hidden;
+}
+
+/* Content Styling */
+.overview-text {
+    flex: 2;
+    font-size: 1.2em;
+    /* Increased font size for better readability */
+    line-height: 1.8;
+    color: #ffffff;
+    /* Text color set to white for contrast */
+    padding: 30px;
+    /* Increased padding for a spacious feel */
+    background-color: #1f4959;
+    /* Darker background color for contrast */
+    border-radius: 10px;
+}
+
+/* Vertical Line Separator */
+.vertical-line {
+    width: 2px;
+    background-color: #ac3535;
+    height: 100%;
+}
+
+/* Title Styling */
+.overview-title {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    /* Increased padding around the title */
+    text-align: center;
+    height: 100%;
+}
+
+.overview-title h2 {
+    font-size: 3.5em;
+    /* Larger font size for the title */
+    color: #1d1d1d;
+    line-height: 1.3;
+    margin-top: 120px;
+    /* Reduced top margin */
+    margin-bottom: 30px;
+    margin-right: 50px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .overview-layout {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 20px;
+    }
+
+    .vertical-line {
+        display: none;
+    }
+
+    .overview-title,
+    .overview-text {
+        flex: 1;
+    }
+
+    .overview-title h2 {
+        font-size: 2.5em;
+        /* Adjusted font size for mobile */
+        margin-top: 50px;
+        /* Adjusted top margin */
+        margin-bottom: 20px;
+    }
+}
+
+/* Gesture Tracking Section */
+.gesture-tracking {
+    padding: 80px 20px;
+    background-color: #f7f7f7;
+    text-align: center;
+}
+
+.gesture-tracking h1 {
+    font-size: 2.5em;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.gesture-video-container {
+    position: relative;
+    width: 80%;
+    margin: 0 auto 30px;
+}
+
+.gesture-video-container video {
+    border-radius: 10px;
+}
+
+.gesture-tracking p {
+    font-size: 1.1em;
+    color: #444;
+    margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+    .gesture-video-container {
+        width: 100%;
+    }
+
+    .gesture-tracking h1 {
+        font-size: 2em;
+    }
+
+    .gesture-tracking p {
+        font-size: 1em;
+    }
+}
+
+/* contact us */
+.contact-us {
+    background-color: linear-gradient(135deg, #e3f2fd, #90caf9);
+    padding: 50px 20px;
+    text-align: center;
+    border-top: 1px solid #ddd;
+}
+
+.contact-us h1 {
+    margin-bottom: 30px;
+    font-size: 2.5em;
+    color: #003366;
+}
+
+.contact-info {
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+    margin-bottom: 30px;
+}
+
+.person h3 {
+    font-size: 1.4em;
+    color: #003366;
+    margin-bottom: 5px;
+}
+
+.person p a {
+    color: #007BFF;
+    text-decoration: none;
+    font-size: 1em;
+}
+
+.person p a:hover {
+    text-decoration: underline;
+}
+
+.suggest-box {
+    margin-bottom: 30px;
+}
+
+.suggest-box h2 {
+    font-size: 1.8em;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.suggest-box p {
+    font-size: 1em;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+#suggestion {
+    width: 80%;
+    max-width: 500px;
+    padding: 10px;
+    font-size: 1em;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    resize: none;
+}
+
+.send-button {
+    margin-top: 10px;
+
+    padding: 10px 20px;
+    font-size: 1em;
+    color: #fff;
+    background-color: #007BFF;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.send-button:hover {
+    background-color: #0056b3;
+}
+
+.social-media {
+    margin-top: 20px;
+}
+
+.social-media h2 {
+    font-size: 1.8em;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.social-media a {
+    margin: 0 15px;
+    font-size: 2em;
+    color: #555;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.social-media a:hover {
+    color: #007BFF;
+}
+
+.social-media i {
+    margin-top: 10px;
+}
+
+.send-button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    font-size: 1.5em;
+    color: #fff;
+    background-color: #007BFF;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.send-button i {
+    margin-left: 5px;
+}
+
+.send-button:hover {
+    background-color: #0056b3;
+}
+
+#suggestion {
+    width: 80%;
+    max-width: 500px;
+    padding: 10px;
+    font-size: 1em;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    resize: none;
+}
+
+/* General styles for dark mode */
+.dark-mode {
+    background-color: #121212;
+    /* Dark background */
+    color: #fff;
+    /* White primary text color */
+}
+
+/* Default logo color */
+/* .logo {
+    color: #fff;
+    /* Set the default logo color */
+
+
+/* When the logo is clicked, change the color to white */
+body.dark-mode .logo {
+    color: #fff;
+    /* White color for dark mode */
+}
+
+body.dark-mode .model-training h1 {
+    color: #fff;
+    /* Ensure the title remains black in dark mode */
+}
+
+body.dark-mode .model-training h3 {
+    color: #000;
+    /* Ensure the title remains black in dark mode */
+}
+
+/* Navbar styles in dark mode */
+.dark-mode header {
+    background-color: #1e1e1e;
+}
+
+.dark-mode .navigation a {
+    color: #fff;
+    /* White text for links */
+}
+
+.dark-mode .navigation a:hover {
+    color: #ccc;
+    /* Lighter white text for hover effect */
+}
+
+/* Button styles in dark mode */
+.dark-mode .send-button {
+    background-color: #444;
+    /* Dark background for buttons */
+    color: #fff;
+    /* White text */
+}
+
+.dark-mode .send-button:hover {
+    background-color: #666;
+    /* Lighter button color on hover */
+}
+
+/* Primary Text (White) */
+.dark-mode .primary-text {
+    color: #ffffff;
+    /* White for primary text */
+}
+
+/* Secondary Text (Grey) */
+.dark-mode .secondary-text {
+    color: #b0b0b0;
+    /* Light grey for secondary text */
+}
+
+/* Overview Section */
+.dark-mode .overview {
+    background-color: #222;
+    /* Dark background for overview section */
+}
+
+.dark-mode .overview-text {
+    color: #e0e0e0;
+    /* Lighter text for readability */
+}
+
+.dark-mode .overview-title h2 {
+    color: #000000;
+    /* White for titles */
+}
+
+/* Hero Section */
+.dark-mode .hero {
+    background-color: #1f1f1f;
+    /* Dark background for hero section */
+}
+
+.dark-mode .hero-content h1,
+.dark-mode .hero-content p {
+    color: #ffffff;
+    /* White text for hero section */
+}
+
+/* Flowchart Step */
+.dark-mode .flowchart-step-content h3 {
+    color: #fff;
+    /* White for headings */
+}
+
+.dark-mode .flowchart-step-content p {
+    color: #e0e0e0;
+    /* Light gray text for readability */
+}
+
+/* Gesture Tracking Section */
+.dark-mode .gesture-tracking {
+    background-color: #1f1f1f;
+    /* Dark background for gesture tracking section */
+    color: #fff;
+    /* White text */
+}
+
+.dark-mode .gesture-tracking h1 {
+    color: #fff;
+    /* White for heading */
+}
+
+.dark-mode .gesture-tracking .gesture-video-container p {
+    color: #e0e0e0;
+    /* Light grey for description text */
+}
+
+/* Suggestions box */
+.dark-mode .suggest-box h2 {
+    color: #fff;
+    /* White for suggest us title */
+}
+
+.dark-mode .suggest-box textarea {
+    background-color: #333;
+    /* Dark background for textarea */
+    color: #fff;
+    /* White text */
+}
+
+.dark-mode .suggest-box button {
+    background-color: #ffcc00;
+    /* Bright yellow button */
+    color: #fff;
+    /* White text */
+}
+
+.dark-mode .suggest-box button:hover {
+    background-color: #ff9900;
+    /* Darker yellow on hover */
+}
+
+/* Social Media Icons */
+.dark-mode .social-media i {
+    color: #ffcc00;
+    /* Bright yellow for icons */
+}
+
+.dark-mode .social-media i:hover {
+    color: #ff9900;
+    /* Change color on hover */
+}
+
+/* White background with secondary text (for sections or cards) */
+.dark-mode .white-bg-section {
+    background-color: #ffffff;
+    /* White background */
+    color: #333;
+    /* Dark text for readability on white background */
+}
+
+.dark-mode .white-bg-section .secondary-text {
+    color: #fff;
+    /* Grey secondary text */
+}
+
+/* Search Icon - No changes made */
+.search-button ion-icon {
+    font-size: 24px;
+    color: inherit;
+    /* Keeps the icon color as it was */
+}
+
+/* Style for the iframe container */
+.iframe-container {
+    width: 100%;
+    height: 100vh;
+    /* Full viewport height */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    /* Center align the iframe horizontally */
+    align-items: center;
+    /* Center align the iframe vertically */
+    box-sizing: border-box;
+}
+
+/* Style for the iframe */
+.full-width-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* Default light theme */
+body {
+    background-color: #fff;
+    color: #000;
+}
+
+/* Dark theme styles for the body */
+body.dark-theme {
+    background-color: #121212;
+    color: #f0f0f0;
+}
+
+/* Navbar remains unaffected */
+header {
+    background-color: transparent;
+    /* Keep header as is */
+}
+
+header .logo {
+    color: #000;
+    /* Default logo color */
+}
+
+header nav {
+    background-color: transparent;
+    /* Keep nav background transparent */
+}
+
+header nav a {
+    color: #000;
+    /* Keep links black */
+}
+
+.search-container {
+    background-color: transparent;
+    /* Keep search input background transparent */
+}
+
+.search-container input,
+.search-container button {
+    color: #000;
+    /* Keep search input text color dark */
+}
+
+/* Ensure the search icon remains the same (don't modify it) */
+.search-button ion-icon {
+    color: #000;
+    /* Default color for the search icon */
 }
