@@ -8,7 +8,7 @@ model = load_model('AI_model/model.h5')  # Update with your model's path
 unique_labels = ["hello", "thank you", "no gesture","what","your","name"]
 
 # Constants
-sequence_length = 130  # Length of sequences for prediction (130 samples)
+sequence_length = 120 # Length of sequences for prediction (130 samples)
 
 app = Flask(__name__)
 

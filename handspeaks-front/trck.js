@@ -7,7 +7,7 @@ const watch = new TouchSDK.Watch();
 const connectButton = watch.createConnectButton();
 document.body.appendChild(connectButton);
 
-const sequenceLength = 130; // Number of samples needed for prediction
+const sequenceLength = 120; // Number of samples needed for prediction
 let sensorDataBuffer = []; // Buffer to accumulate sensor data
 let isCollectingData = true; // Flag to control data collection
 
@@ -255,6 +255,23 @@ function accumulateSensorData() {
     }
 }
 
+const speak = (text) => {
+    if (text.trim() && text !== "No gesture") {
+        if ('speechSynthesis' in window) {
+            try {
+                speechSynthesis.cancel(); // Stop any ongoing speech
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.pitch = 1; // Customize pitch
+                utterance.rate = 1;  // Customize rate
+                speechSynthesis.speak(utterance);
+            } catch (error) {
+                console.error("Speech synthesis failed:", error);
+            }
+        } else {
+            console.warn("Speech synthesis not supported in this browser.");
+        }
+    }
+};
 
 // Send data to Flask API
 async function sendDataToFlask(dataToSend) {
@@ -267,6 +284,13 @@ async function sendDataToFlask(dataToSend) {
 
         const data = await response.json();
         predictionElement.innerHTML = data.prediction ? `Prediction: ${data.prediction}` : `Error: ${data.error}`;
+        if (data.prediction) {
+            predictionElement.innerHTML = `Prediction: ${data.prediction}`;
+
+            if(data.prediction!="no gesture") speak(data.prediction);
+        } else {
+            predictionElement.innerHTML = `Error: ${data.error}`;
+        }
     } catch (error) {
         predictionElement.innerHTML = `Error: ${error.message}`;
     }

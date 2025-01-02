@@ -12,7 +12,7 @@ data = pd.read_csv('AI_model/sensor.csv')  # Replace with your actual file path
 
 # Step 1: Segment data into sequences
 # Assuming each segment lasts 3 seconds with a specific number of samples per segment
-sequence_length = 120  # Adjust based on your data
+sequence_length = 100  # Adjust based on your data
 segments = []
 
 # Group data by ID (segment) and create sequences
@@ -52,9 +52,50 @@ model.add(Dense(len(unique_labels), activation='softmax'))  # Adjust the number 
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 # Step 7: Train the model
-model.fit(X_train, y_train, epochs=20, batch_size=32, validation_data=(X_test, y_test))
+history=model.fit(X_train, y_train, epochs=3, batch_size=32, validation_data=(X_test, y_test))
 
 # Step 8: Evaluate the model
 loss, accuracy = model.evaluate(X_test, y_test)
 print(f'Test Loss: {loss:.4f}, Test Accuracy: {accuracy:.4f}')
 keras.saving.save_model(model, 'AI_model/model.h5')
+
+import matplotlib.pyplot as plt
+# Extracting metrics
+loss = history.history['loss']
+val_loss = history.history['val_loss']
+accuracy = history.history.get('accuracy')  # Optional, if accuracy is tracked
+val_accuracy = history.history.get('val_accuracy')  # Optional, if accuracy is tracked
+epochs = range(1, len(loss) + 1)
+import matplotlib.pyplot as plt
+
+# Extract metrics
+loss = history.history['loss']
+val_loss = history.history['val_loss']
+accuracy = history.history.get('accuracy')
+val_accuracy = history.history.get('val_accuracy')
+epochs = range(1, len(loss) + 1)
+
+# Create subplots
+fig, ax = plt.subplots(1, 2, figsize=(16, 6))
+
+# Plot Loss
+ax[0].plot(epochs, loss, 'b', label='Training Loss')
+ax[0].plot(epochs, val_loss, 'r', label='Validation Loss')
+ax[0].set_title('Training and Validation Loss')
+ax[0].set_xlabel('Epochs')
+ax[0].set_ylabel('Loss')
+ax[0].legend()
+ax[0].grid(True)
+
+# Plot Accuracy
+ax[1].plot(epochs, accuracy, 'b', label='Training Accuracy')
+ax[1].plot(epochs, val_accuracy, 'r', label='Validation Accuracy')
+ax[1].set_title('Training and Validation Accuracy')
+ax[1].set_xlabel('Epochs')
+ax[1].set_ylabel('Accuracy')
+ax[1].legend()
+ax[1].grid(True)
+
+# Display the plots
+plt.tight_layout()
+plt.show()

@@ -7,7 +7,7 @@ const watch = new TouchSDK.Watch();
 const connectButton = watch.createConnectButton();
 document.body.appendChild(connectButton);
 
-const sequenceLength = 130; // Number of samples needed for prediction
+const sequenceLength = 100; // Number of samples needed for prediction
 let sensorDataBuffer = []; // Buffer to accumulate sensor data
 let isCollectingData = true; // Flag to control data collection
 
@@ -135,6 +135,7 @@ loader.load('../3dmodel/arm.glb', (gltf) => {
     animate(); // Start rendering
 });
 
+
 // Update the 3D hand model's rotation
 function updateHandModel() {
     if (handModel && isSensorDataValid()) {
@@ -214,17 +215,33 @@ function accumulateSensorData() {
     }
 }
 
+
+    const speak = (text) => {
+        const utterance = new SpeechSynthesisUtterance(text); // Create a speech utterance
+        speechSynthesis.speak(utterance); // Speak the text
+    };
+
 // Send data to Flask API
 async function sendDataToFlask(dataToSend) {
+    
     try {
         const response = await fetch('http://127.0.0.1:5000/predict', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ sensor_data: dataToSend.flat() })
+        
         });
 
+
         const data = await response.json();
-        predictionElement.innerHTML = data.prediction ? `Prediction: ${data.prediction}` : `Error: ${data.error}`;
+        if (data.prediction) {
+            predictionElement.innerHTML = `Prediction: ${data.prediction}`;
+
+            if(data.prediction!="no gesture") speak(data.prediction);
+        } else {
+            predictionElement.innerHTML = `Error: ${data.error}`;
+        }
+        
     } catch (error) {
         predictionElement.innerHTML = `Error: ${error.message}`;
     }
