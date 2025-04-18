@@ -47,13 +47,13 @@ class MyWatch(Watch):
 
         # Prepare the data in the desired format
         data = [
-            196,
+            233,
             elapsed_time,  # Elapsed time in seconds
             sensors.acceleration[0], sensors.acceleration[1], sensors.acceleration[2],  # Separate acceleration components
             sensors.gravity[0], sensors.gravity[1], sensors.gravity[2],  # Separate gravity components
             sensors.angular_velocity[0], sensors.angular_velocity[1], sensors.angular_velocity[2],  # Separate angular velocity components
             sensors.orientation[0], sensors.orientation[1], sensors.orientation[2],  # Separate orientation components
-            "name"  # Character or label for gesture
+            "No gesture"  # Character or label for gesture
         ]
         
         # Write the data to the CSV file
