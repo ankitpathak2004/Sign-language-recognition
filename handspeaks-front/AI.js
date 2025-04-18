@@ -30,34 +30,35 @@ const timeTakenElement = document.createElement('div');
 timeTakenElement.id = 'timeTaken';
 document.body.appendChild(timeTakenElement);
 
-// Style the UI with the requested changes
+// Style the UI with mobile-first responsive design
 document.body.style.margin = "0";
 document.body.style.height = "100vh";
 document.body.style.background = "#000000"; // Set background to black
 document.body.style.color = "#ffffff";
 document.body.style.fontFamily = "Arial, sans-serif";
 document.body.style.display = "grid";
-document.body.style.gridTemplateColumns = "1fr 1fr"; // Two columns: one for renderer and one for connect & prediction
-document.body.style.gridTemplateRows = "1fr 1fr"; // First row adjusts height, second row is for time
+document.body.style.gridTemplateColumns = "1fr"; // Single column for mobile view
+document.body.style.gridTemplateRows = "auto auto auto auto"; // Rows for each section
 document.body.style.gridTemplateAreas = `
-    "renderer connect"
-    "time prediction"
+    "renderer"
+    "connect"
+    "time"
+    "prediction"
 `; // Define the grid layout
-
 document.body.style.gap = "20px"; // Add some gap between containers
 document.body.style.padding = "10px"; // Padding for overall space
 
-
 // Style for the connect button
 connectButton.style.padding = "15px 30px";
-connectButton.style.borderRadius = "30px";
-connectButton.style.height="256px";
+connectButton.style.borderRadius = "20px";
 connectButton.style.border = "none";
 connectButton.style.cursor = "pointer";
 connectButton.style.color = "#ffffff";
-connectButton.style.fontSize = "18px";
+connectButton.style.fontSize = "16px";
 connectButton.style.background = "linear-gradient(135deg, #0f0, #0a0)";
 connectButton.style.transition = "background 0.3s ease, transform 0.3s ease";
+connectButton.style.width = "100%";
+connectButton.style.textAlign = "center";
 connectButton.onmouseover = () => {
     connectButton.style.background = "linear-gradient(135deg, #0a0, #050)";
     connectButton.style.transform = "scale(1.05)";
@@ -66,42 +67,41 @@ connectButton.onmouseout = () => {
     connectButton.style.background = "linear-gradient(135deg, #0f0, #0a0)";
     connectButton.style.transform = "scale(1)";
 };
+connectButton.style.gridArea = "connect"; // Grid area for connect button
 
 // Style for the prediction element
-predictionElement.style.padding = "20px";
+predictionElement.style.padding = "15px";
 predictionElement.style.textAlign = "center";
 predictionElement.style.borderRadius = "10px";
 predictionElement.style.background = "grey";
 predictionElement.style.boxShadow = "0 0 10px rgba(0, 255, 255, 0.5)";
-predictionElement.style.fontSize = "24px";
+predictionElement.style.fontSize = "18px";
 predictionElement.style.fontWeight = "bold";
 predictionElement.innerHTML = "Prediction will appear here";
 predictionElement.style.gridArea = "prediction"; // Grid area for prediction
 
 // Style for the time taken element
-timeTakenElement.style.padding = "20px";
+timeTakenElement.style.padding = "15px";
 timeTakenElement.style.textAlign = "center";
 timeTakenElement.style.borderRadius = "10px";
 timeTakenElement.style.background = "linear-gradient(135deg, #0f2027, #203a43)";
 timeTakenElement.style.boxShadow = "0 0 10px rgba(255, 255, 0, 0.5)";
-timeTakenElement.style.fontSize = "18px";
+timeTakenElement.style.fontSize = "16px";
 timeTakenElement.style.fontWeight = "normal";
 timeTakenElement.innerHTML = "Gesture time will appear here";
 timeTakenElement.style.gridArea = "time"; // Grid area for time taken
 
 // Create the 3D canvas container (Renderer)
 const threeCanvasContainer = document.createElement('div');
-threeCanvasContainer.style.maxWidth = "720px";
-threeCanvasContainer.style.height = "480px";
-threeCanvasContainer.style.margin = "0 auto";
-threeCanvasContainer.style.padding = "15px";
+threeCanvasContainer.style.width = "100%";
+threeCanvasContainer.style.height = "300px";
 threeCanvasContainer.style.background = "black";
-threeCanvasContainer.style.borderRadius = "40px";
+threeCanvasContainer.style.borderRadius = "10px";
 threeCanvasContainer.style.boxShadow = "0 0px 12px rgba(128, 128, 128, 0.8)";
 threeCanvasContainer.style.display = "flex";
 threeCanvasContainer.style.justifyContent = "center";
 threeCanvasContainer.style.alignItems = "center";
-threeCanvasContainer.style.gridArea = "renderer"; // Grid area for renderer (on the left)
+threeCanvasContainer.style.gridArea = "renderer"; // Grid area for renderer
 document.body.appendChild(threeCanvasContainer);
 
 // Initialize Three.js scene
@@ -112,7 +112,7 @@ camera.lookAt(new THREE.Vector3(0, 0, 0));  // Focus on the origin
 scene.add(camera);
 
 const renderer = new THREE.WebGLRenderer();
-renderer.setSize(720, 480);
+renderer.setSize(300, 300); // Adjust canvas size for mobile
 threeCanvasContainer.appendChild(renderer.domElement);
 
 // Add lights to the scene
@@ -130,7 +130,7 @@ loader.load('../3dmodel/arm.glb', (gltf) => {
     handModel = gltf.scene;
 
     // Reduce the hand model's size
-    handModel.scale.set(1, 1, 1); // Adjust scale (reduce by 50%)
+    handModel.scale.set(1, 1, 1); // Adjust scale
     scene.add(handModel);
     animate(); // Start rendering
 });
